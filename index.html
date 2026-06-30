@@ -1,0 +1,329 @@
+<!doctype html>
+<html lang="id">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Portal Akses</title>
+    <style>
+      :root {
+        --bg: #0e1320;
+        --bg-2: #141b2c;
+        --panel: #1a2236;
+        --amber: #d9a441;
+        --amber-soft: #f0c878;
+        --cream: #ece6da;
+        --muted: #8a93a8;
+        --line: #2a3450;
+      }
+
+      * {
+        box-sizing: border-box;
+        margin: 0;
+        padding: 0;
+      }
+
+      body {
+        background: radial-gradient(
+          ellipse at 50% -10%,
+          #1b2440 0%,
+          var(--bg) 55%
+        );
+        color: var(--cream);
+        font-family: "Georgia", "Iowan Old Style", serif;
+        min-height: 100vh;
+        padding: 60px 24px 80px;
+        overflow-x: hidden;
+      }
+
+      @font-face {
+        /* fallback handled by stack */
+      }
+
+      header {
+        text-align: center;
+        max-width: 700px;
+        margin: 0 auto 70px;
+      }
+
+      .eyebrow {
+        font-family: "Helvetica Neue", Arial, sans-serif;
+        letter-spacing: 0.35em;
+        text-transform: uppercase;
+        font-size: 11px;
+        color: var(--amber);
+        margin-bottom: 18px;
+      }
+
+      h1 {
+        font-size: clamp(36px, 6vw, 58px);
+        font-weight: 400;
+        line-height: 1.1;
+        color: var(--cream);
+      }
+
+      h1 em {
+        font-style: italic;
+        color: var(--amber-soft);
+      }
+
+      header p {
+        margin-top: 18px;
+        font-family: "Helvetica Neue", Arial, sans-serif;
+        color: var(--muted);
+        font-size: 15px;
+        line-height: 1.6;
+      }
+
+      .gate-row {
+        max-width: 1100px;
+        margin: 0 auto;
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+        gap: 28px;
+        perspective: 1600px;
+      }
+
+      .gate {
+        position: relative;
+        height: 320px;
+        border-radius: 6px;
+        background: linear-gradient(180deg, var(--panel), var(--bg-2));
+        border: 1px solid var(--line);
+        overflow: hidden;
+        cursor: pointer;
+        transform-style: preserve-3d;
+        transition:
+          transform 0.55s cubic-bezier(0.22, 1, 0.36, 1),
+          box-shadow 0.55s ease;
+      }
+
+      .gate:hover {
+        transform: translateY(-6px) rotateX(2deg);
+        box-shadow:
+          0 30px 60px -20px rgba(0, 0, 0, 0.6),
+          0 0 0 1px var(--amber);
+      }
+
+      /* the "door" panels that swing open */
+      .door {
+        position: absolute;
+        top: 0;
+        bottom: 0;
+        width: 51%;
+        background: linear-gradient(135deg, #1f2840 0%, #141a2c 100%);
+        border: 1px solid var(--line);
+        transition: transform 0.6s cubic-bezier(0.22, 1, 0.36, 1);
+        display: flex;
+        align-items: center;
+        z-index: 3;
+      }
+      .door.left {
+        left: 0;
+        transform-origin: left center;
+        border-right: none;
+        justify-content: flex-end;
+        padding-right: 6px;
+      }
+      .door.right {
+        right: 0;
+        transform-origin: right center;
+        border-left: none;
+        justify-content: flex-start;
+        padding-left: 6px;
+      }
+
+      .door::after {
+        content: "";
+        width: 3px;
+        height: 28px;
+        background: var(--amber);
+        border-radius: 2px;
+        opacity: 0.8;
+      }
+
+      .gate:hover .door.left {
+        transform: rotateY(-110deg);
+      }
+      .gate:hover .door.right {
+        transform: rotateY(110deg);
+      }
+
+      .gate-inner {
+        position: absolute;
+        inset: 0;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        text-align: center;
+        padding: 24px;
+        z-index: 1;
+      }
+
+      .gate-icon {
+        width: 46px;
+        height: 46px;
+        margin-bottom: 18px;
+        opacity: 0.9;
+        transition: transform 0.5s ease;
+      }
+      .gate:hover .gate-icon {
+        transform: scale(1.15) translateY(-2px);
+      }
+
+      .gate-icon svg {
+        width: 100%;
+        height: 100%;
+        stroke: var(--amber-soft);
+        fill: none;
+        stroke-width: 1.4;
+      }
+
+      .gate-title {
+        font-size: 20px;
+        color: var(--cream);
+        letter-spacing: 0.02em;
+      }
+
+      .gate-desc {
+        font-family: "Helvetica Neue", Arial, sans-serif;
+        font-size: 12.5px;
+        color: var(--muted);
+        margin-top: 10px;
+        max-width: 180px;
+        line-height: 1.5;
+        opacity: 0;
+        transform: translateY(6px);
+        transition:
+          opacity 0.4s ease 0.15s,
+          transform 0.4s ease 0.15s;
+      }
+
+      .gate:hover .gate-desc {
+        opacity: 1;
+        transform: translateY(0);
+      }
+
+      .gate-glow {
+        position: absolute;
+        inset: 0;
+        background: radial-gradient(
+          circle at 50% 50%,
+          rgba(217, 164, 65, 0.18),
+          transparent 65%
+        );
+        opacity: 0;
+        transition: opacity 0.6s ease;
+        pointer-events: none;
+        z-index: 2;
+      }
+      .gate:hover .gate-glow {
+        opacity: 1;
+      }
+
+      .gate-num {
+        position: absolute;
+        top: 14px;
+        left: 16px;
+        font-family: "Helvetica Neue", Arial, sans-serif;
+        font-size: 10px;
+        color: var(--muted);
+        letter-spacing: 0.15em;
+        z-index: 4;
+      }
+
+      footer {
+        text-align: center;
+        margin-top: 70px;
+        font-family: "Helvetica Neue", Arial, sans-serif;
+        color: var(--muted);
+        font-size: 12px;
+        letter-spacing: 0.08em;
+      }
+
+      @media (prefers-reduced-motion: reduce) {
+        .gate,
+        .door,
+        .gate-icon,
+        .gate-desc,
+        .gate-glow {
+          transition: none !important;
+        }
+      }
+
+      .gate:focus-visible {
+        outline: 2px solid var(--amber);
+        outline-offset: 4px;
+      }
+    </style>
+  </head>
+  <body>
+    <header>
+      <div class="eyebrow">Tugas UAS</div>
+      <h1>RIZQIA NABILAH SYAFITRI</h1>
+      <p>
+        Pilih gerbang yang sesuai dengan kebutuhan Anda. Arahkan kursor untuk
+        membuka.
+      </p>
+    </header>
+
+    <div class="gate-row">
+      <a class="gate" href="#" tabindex="0">
+        <span class="gate-num">01</span>
+        <div class="gate-glow"></div>
+        <div class="gate-inner">
+          <div class="gate-icon">
+            <svg viewBox="0 0 24 24">
+              <circle cx="12" cy="8" r="3.2" />
+              <path d="M5 20c0-3.5 3-6 7-6s7 2.5 7 6" />
+            </svg>
+          </div>
+          <div class="gate-title">Akun Saya</div>
+          <div class="gate-desc">
+            Kelola profil, kata sandi, dan preferensi.
+          </div>
+        </div>
+        <div class="door left"></div>
+        <div class="door right"></div>
+      </a>
+
+      <a class="gate" href="https://nblhrisz.my.canva.site/" tabindex="0">
+        <span class="gate-num">02 </span>
+        <div class="gate-glow"></div>
+        <div class="gate-inner">
+          <div class="gate-icon">
+            <svg viewBox="0 0 24 24">
+              <rect x="4" y="3" width="16" height="18" rx="1" />
+              <line x1="8" y1="8" x2="16" y2="8" />
+              <line x1="8" y1="12" x2="16" y2="12" />
+              <line x1="8" y1="16" x2="13" y2="16" />
+            </svg>
+          </div>
+          <div class="gate-title">Modul Tata Surya</div>
+          <div class="gate-desc">Modul Ajar sistem tata surya.</div>
+        </div>
+        <div class="door left"></div>
+        <div class="door right"></div>
+      </a>
+
+      <a class="gate" href="#" tabindex="0">
+        <span class="gate-num">03</span>
+        <div class="gate-glow"></div>
+        <div class="gate-inner">
+          <div class="gate-icon">
+            <svg viewBox="0 0 24 24">
+              <path d="M4 19V9l8-5 8 5v10" />
+              <path d="M9 19v-6h6v6" />
+            </svg>
+          </div>
+          <div class="gate-title">Layanan</div>
+          <div class="gate-desc">Ajukan permohonan dan pantau statusnya.</div>
+        </div>
+        <div class="door left"></div>
+        <div class="door right"></div>
+      </a>
+    </div>
+
+    <footer>PORTAL AKSES &middot; ARAHKAN KURSOR UNTUK MEMBUKA GERBANG</footer>
+  </body>
+</html>
